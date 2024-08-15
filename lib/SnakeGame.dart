@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:md_snake_game/gameOver.dart';
 
 class Snakegame extends StatefulWidget {
   const Snakegame({super.key});
@@ -34,34 +35,17 @@ class _SnakegameState extends State<Snakegame> {
     direction = Direction.right;
     snakeHead = snakePosition.first;
 
-    Timer.periodic(Duration(milliseconds: 300), (timer) {
+    Timer.periodic(const Duration(milliseconds: 300), (timer) {
       updateSnake();
 
       if (checkCollision()) {
         timer.cancel();
-        showGameOverDialog();
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => GameOver(score)),
+        );
       }
     });
-  }
-
-  void showGameOverDialog() {
-    showDialog(
-        // barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Game Over"),
-            content: const Text("your snake collide"),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    startGame();
-                  },
-                  child: Text("Restart"))
-            ],
-          );
-        });
   }
 
   bool checkCollision() {
@@ -107,25 +91,30 @@ class _SnakegameState extends State<Snakegame> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: column),
-            itemCount: row * column,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.all(1),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: fillBoxColor(index)),
-              );
-            },
-          ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Flexible(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: column),
+                itemCount: row * column,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: fillBoxColor(index)),
+                  );
+                },
+              ),
+            ),
+            _buildGameControls()
+          ],
         ),
-        _buildGameControls()
-      ],
+      ),
     );
   }
 
@@ -141,7 +130,11 @@ class _SnakegameState extends State<Snakegame> {
           ),
           Text(
             "Score : $score",
-            style: const TextStyle(color: Colors.amber, fontSize: 34),
+            style: const TextStyle(
+              color: Colors.amber,
+              fontSize: 34,
+              decoration: TextDecoration.none,
+            ),
           ),
           const SizedBox(
             height: 15,
@@ -151,7 +144,7 @@ class _SnakegameState extends State<Snakegame> {
               if (direction != Direction.down) direction = Direction.up;
             },
             icon: const Icon(Icons.arrow_circle_up, color: Colors.amber),
-            iconSize: 100,
+            iconSize: 80,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -160,9 +153,9 @@ class _SnakegameState extends State<Snakegame> {
                 onPressed: () {
                   if (direction != Direction.right) direction = Direction.left;
                 },
-                icon:
-                    Icon(Icons.arrow_circle_left_outlined, color: Colors.amber),
-                iconSize: 100,
+                icon: const Icon(Icons.arrow_circle_left_outlined,
+                    color: Colors.amber),
+                iconSize: 80,
               ),
               const SizedBox(
                 width: 100,
@@ -173,7 +166,7 @@ class _SnakegameState extends State<Snakegame> {
                 },
                 icon: const Icon(Icons.arrow_circle_right_outlined,
                     color: Colors.amber),
-                iconSize: 100,
+                iconSize: 80,
               ),
             ],
           ),
@@ -183,7 +176,7 @@ class _SnakegameState extends State<Snakegame> {
             },
             icon: const Icon(Icons.arrow_circle_down_outlined,
                 color: Colors.amber),
-            iconSize: 100,
+            iconSize: 80,
           )
         ],
       ),
